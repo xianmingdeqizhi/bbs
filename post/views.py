@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from math import ceil
 from django.shortcuts import render,redirect
 
 from post.models import Post
@@ -44,8 +45,16 @@ def delete_post(request):
 
 
 def post_list(request):
-    posts = Post.objects.all()
-    return render(request,'post_list.html',{'posts':posts})
+    page = int(request.GET.get('page',1))
+    total = Post.objects.count()
+    per_page = 10
+    pages = ceil(total / per_page)
+    start = (page-1)*per_page
+    end = start + per_page
+
+    posts = Post.objects.all()[start:end]
+    return render(request,'post_list.html',
+                  {'posts':posts,'pages':range(pages)})
 
 
 def search(request):
